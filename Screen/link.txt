@@ -1,0 +1,4 @@
+https://ourcodeworld.com/articles/read/1433/how-to-fix-tensorflow-warning-could-not-load-dynamic-library-cudart64-110dll-dlerror-cudart64-110dll-not-found
+https://www.tensorflow.org/install/gpu
+https://stackoverflow.com/questions/40183108/python-packages-hash-not-matching-whilst-installing-using-pip
+https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#deactivating-an-environment
