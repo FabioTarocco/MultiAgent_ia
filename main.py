@@ -10,7 +10,7 @@ import gym
 import yaml
 from make_env import make_env
 
-from agent_og import DDQN
+from agent import DDQN
 from utils.tracker import Tracker
 
 with open('config.yml', 'r') as ymlfile:
@@ -45,7 +45,7 @@ def main(params):
         tag = 'DDQN'
     """
     print(f"{env.action_space[0]} \n {env.action_space}")
-
+    #printf(f"{env.")
     agent = DDQN(env, cfg['agent'])
     tag = 'DDQN'
     # Initiate the tracker for stats
@@ -54,7 +54,7 @@ def main(params):
         tag,
         seed,
         cfg['agent'], 
-        ['Epoch', 'Ep_Reward']
+        ['Epoch', 'Ep_Reward', 'Ep_Adv_Reward']
     )
 
     # Train the agent

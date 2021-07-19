@@ -55,13 +55,14 @@ class DDQN:
         self.model_tg = []
         self.buffer = []
         self.model_opt = []
-
+        
         for i in range (0,self.env.n - 1):
             self.model.append(DeepNetwork.build(env, params['dnn']))
             self.model_tg.append(DeepNetwork.build(env, params['dnn']))
             self.buffer.append(Buffer(params['buffer']['size']))
             self.model_tg[i].set_weights(self.model[i].get_weights())
-            self.model_opt[i] = Adam()
+            self.model_opt.append(Adam())
+            #self.model_opt[i] = Adam()
         
         
     def get_action(self, state, eps):
@@ -94,14 +95,13 @@ class DDQN:
         self.discrete_action_space = True
         if true, action is a number 0...N, otherwise action is a one-hot N-dimensional vector
         """
-        actions = np.zeros(self.env.n, 5)
+        actions = np.zeros((self.env.n, self.env.action_space[0].n),dtype='int')
         for i in range (self.env.n - 1):
             if np.random.uniform() <= eps:
                 actions[i][np.random.randint(0, self.env.action_space[0].n)]=1
             q_values = self.model(np.array([state])).numpy()[0]    
             actions[i][np.argmax(q_values)] = 1
         return actions
-
 
     def update(self, gamma, batch_size):
         """Prepare the samples to update the network
@@ -194,7 +194,8 @@ class DDQN:
             None
         """
 
-        mean_reward = deque(maxlen=100)
+        mean_good_reward = deque(maxlen=100)
+        mean_adv_reward = deque(maxlen=100)
 
   
         eps, eps_min = params['eps'], params['eps_min']
@@ -202,12 +203,20 @@ class DDQN:
         tau, use_polyak, tg_update = hyperp['tau'], hyperp['use_polyak'], hyperp['tg_update']
 
         for e in range(n_episodes):
-            ep_reward, steps = 0, 0
+            ep_single_good_reward,ep_single_adv_reward, steps = 0, 0, 0
+
+            ep_good_reward, ep_adv_reward = [], []
+
             state = self.env.reset()
             
+            badTH = 1000000
+            for s in state:
+                badTH = min(badTH, s.size)
+
             while steps < 250:
                 
                 action = self.get_action(state, eps)
+                print(action)
                 a = np.zeros(self.env.action_space[0].n)
                 a[action] = 1
                 obs_state, obs_reward, done, _ = self.env.step([a])
@@ -215,6 +224,7 @@ class DDQN:
                 #obs_state = obs_state[-1]
                 #obs_reward = obs_reward[-1]
                 #done = done[-1]
+                print(obs_state,obs_reward)
 
                 for i in range (self.env.n - 1):
                     self.buffer[i].store(state[i], 
@@ -224,7 +234,16 @@ class DDQN:
                         1 - int(done[i])
                     )
 
-                ep_reward += obs_reward
+                for i in range (self.env.n):
+                    if obs_state[i].size>badTH:
+                        ep_single_good_reward+=obs_reward[i]
+                    else:
+                        ep_single_adv_reward+=obs_reward[i]
+
+                ep_adv_reward.append(ep_adv_reward)
+                ep_good_reward.append(ep_single_good_reward)
+
+                #ep_reward += obs_reward
                 steps += 1
 
                 state = obs_state
@@ -246,17 +265,18 @@ class DDQN:
 
             eps = max(eps_min, eps * eps_decay)
 
-            mean_reward.append(ep_reward)
-            tracker.update([e, ep_reward])
+            mean_good_reward.append(ep_good_reward)
+            mean_adv_reward.append(ep_adv_reward)
+            tracker.update([e, ep_good_reward, ep_adv_reward])
             
 
             if e % verbose == 0: 
                 tracker.save_metrics()
-                tracker.save_model(self.model, e, mean_reward[len(mean_reward) - 1])
+                tracker.save_model(self.model, e, mean_good_reward[len(mean_good_reward) - 1],mean_adv_reward[len(mean_adv_reward) - 1])
 
            #if mean_reward[len(mean_reward)-1] < -20 : tracker.save_model(self.model,e,mean_reward[len(mean_reward)-1])
 
-            print(f'Ep: {e}, Ep_Rew: {ep_reward}, Mean_Rew: {np.mean(mean_reward)}')
+            print(f'Ep: {e}, Ep_Rew: {ep_good_reward}, Ep_Adv_Rew: {ep_adv_reward}, Mean_Rew: {np.mean(mean_good_reward)}, Mean_Adv_Rew: {np.mean(mean_adv_reward)}')
        
 
 
