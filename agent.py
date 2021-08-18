@@ -99,8 +99,9 @@ class DDQN:
         for i in range (self.env.n - 1):
             if np.random.uniform() <= eps:
                 actions[i][np.random.randint(0, self.env.action_space[0].n)]=1
-            q_values = self.model(np.array([state])).numpy()[0]    
-            actions[i][np.argmax(q_values)] = 1
+            else:
+                q_values = self.model(np.array([state])).numpy()[0]    
+                actions[i][np.argmax(q_values)] = 1
         return actions
 
     def update(self, gamma, batch_size):
@@ -272,7 +273,7 @@ class DDQN:
 
             if e % verbose == 0: 
                 tracker.save_metrics()
-                tracker.save_model(self.model, e, mean_good_reward[len(mean_good_reward) - 1],mean_adv_reward[len(mean_adv_reward) - 1])
+                tracker.save_model(self.model, e, mean_good_reward[len(mean_good_reward) - 1], mean_adv_reward[len(mean_adv_reward) - 1])
 
            #if mean_reward[len(mean_reward)-1] < -20 : tracker.save_model(self.model,e,mean_reward[len(mean_reward)-1])
 
