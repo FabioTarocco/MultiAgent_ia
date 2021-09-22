@@ -204,20 +204,17 @@ class DDQN:
         tau, use_polyak, tg_update = hyperp['tau'], hyperp['use_polyak'], hyperp['tg_update']
 
         for e in range(n_episodes):
-            ep_single_good_reward,ep_single_adv_reward, steps = 0, 0, 0
+            ep_good_reward,ep_adv_reward, steps = 0, 0, 0
 
-            ep_good_reward, ep_adv_reward = [], []
 
             state = self.env.reset()
-            
+            print(state)
             badTH = 1000000
             for s in state:
                 badTH = min(badTH, s.size)
 
             while steps < 250:
-                
                 action = self.get_action(state, eps)
-                print(action)
                 a = np.zeros(self.env.action_space[0].n)
                 a[action] = 1
                 obs_state, obs_reward, done, _ = self.env.step([a])
@@ -225,7 +222,7 @@ class DDQN:
                 #obs_state = obs_state[-1]
                 #obs_reward = obs_reward[-1]
                 #done = done[-1]
-                print(obs_state,obs_reward)
+                #print(obs_state,obs_reward)
 
                 for i in range (self.env.n - 1):
                     self.buffer[i].store(state[i], 
@@ -237,12 +234,12 @@ class DDQN:
 
                 for i in range (self.env.n):
                     if obs_state[i].size>badTH:
-                        ep_single_good_reward+=obs_reward[i]
+                        ep_good_reward+=obs_reward[i]
                     else:
-                        ep_single_adv_reward+=obs_reward[i]
+                        ep_adv_reward+=obs_reward[i]
 
-                ep_adv_reward.append(ep_adv_reward)
-                ep_good_reward.append(ep_single_good_reward)
+                #ep_adv_reward.append(ep_adv_reward)
+                #ep_good_reward.append(ep_single_good_reward)
 
                 #ep_reward += obs_reward
                 steps += 1
@@ -273,7 +270,7 @@ class DDQN:
 
             if e % verbose == 0: 
                 tracker.save_metrics()
-                tracker.save_model(self.model, e, mean_good_reward[len(mean_good_reward) - 1], mean_adv_reward[len(mean_adv_reward) - 1])
+                #tracker.save_model(self.model, e, mean_good_reward[len(mean_good_reward) - 1], mean_adv_reward[len(mean_adv_reward) - 1])
 
            #if mean_reward[len(mean_reward)-1] < -20 : tracker.save_model(self.model,e,mean_reward[len(mean_reward)-1])
 

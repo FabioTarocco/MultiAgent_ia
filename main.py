@@ -37,6 +37,7 @@ def main(params):
 
     env = make_env(config['env'])
     env.seed(seed)
+    
     #env.n = restituisce il numero di agenti
     """
     agent = []
@@ -45,19 +46,28 @@ def main(params):
         tag = 'DDQN'
     """
     print(f"{env.action_space[0]} \n {env.action_space}")
+
     #printf(f"{env.")
     agent = DDQN(env, cfg['agent'])
     tag = 'DDQN'
+
     # Initiate the tracker for stats
-    tracker = Tracker(
-        'simple',
-        tag,
-        seed,
-        cfg['agent'], 
-        
-        #['Epoch', 'Ep_Reward']
-        ['Epoch', 'Ep_Reward', 'Ep_Adv_Reward']
-    )
+    if env.n==1:
+        tracker = Tracker(
+            'simple',
+            tag,
+            seed,
+            cfg['agent'], 
+            ['Epoch', 'Ep_Reward']
+        )
+    else:   
+        tracker = Tracker(
+            'simple',
+            tag,
+            seed,
+            cfg['agent'], 
+            ['Epoch', 'Ep_Reward', 'Ep_Adv_Reward']
+        )
 
     # Train the agent
     agent.train(
