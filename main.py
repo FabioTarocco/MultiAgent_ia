@@ -10,7 +10,7 @@ import gym
 import yaml
 from make_env import make_env
 
-from agent import DDQN
+from agent_test import DDQN
 from utils.tracker import Tracker
 
 with open('config.yml', 'r') as ymlfile:
