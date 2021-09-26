@@ -45,7 +45,7 @@ def main(params):
         agent.append(DDQN(env, cfg['agent']))
         tag = 'DDQN'
     """
-    print(f"{env.action_space[0]} \n {env.action_space}")
+    #print(f"{env.action_space[0]} \n {env.action_space}")
 
     #printf(f"{env.")
     agent = DDQN(env, cfg['agent'])

@@ -96,7 +96,7 @@ class DDQN:
         if true, action is a number 0...N, otherwise action is a one-hot N-dimensional vector
         """
         actions = np.zeros((self.env.n, self.env.action_space[0].n),dtype='int')
-        for i in range (self.env.n - 1):
+        for i in range ( self.env.n - 1):
             if np.random.uniform() <= eps:
                 actions[i][np.random.randint(0, self.env.action_space[0].n)]=1
             else:
@@ -208,16 +208,17 @@ class DDQN:
 
 
             state = self.env.reset()
-            print(state)
+            #print(state)
             badTH = 1000000
             for s in state:
                 badTH = min(badTH, s.size)
 
             while steps < 250:
                 action = self.get_action(state, eps)
-                a = np.zeros(self.env.action_space[0].n)
-                a[action] = 1
-                obs_state, obs_reward, done, _ = self.env.step([a])
+                print(action)
+                #a = np.zeros(self.env.action_space[0].n)
+                #a[action] = 1
+                obs_state, obs_reward, done, _ = self.env.step([action])
 
                 #obs_state = obs_state[-1]
                 #obs_reward = obs_reward[-1]

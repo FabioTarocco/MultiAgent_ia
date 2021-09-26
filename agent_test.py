@@ -101,6 +101,11 @@ class DDQN:
         q_values = self.model(np.array([state])).numpy()[0]    
         return np.argmax(q_values)
 
+    def to_encode(self, action):
+        encoded = np.zeros((self.env.action_space[0].n), dtype=int)
+        encoded[action] = 1
+        return encoded
+
     def update(self, gamma, batch_size):
         """Prepare the samples to update the network
 
@@ -212,12 +217,15 @@ class DDQN:
             while steps < 250:
                 actions = []
                 for i in range(self.env.n):
+                    print(state)
+                    print(state[i])
                     action = self.get_action(state[i],eps)
-                    actions.append(action)
-                print(actions)
+                    actions.append(self.to_encode(action))
+                #actions = np.array(actions)
                 actions = np.array(actions)
                 print(actions)
                 obs_state, obs_reward, done, _ = self.env.step(actions)
+
                 #action = self.get_action(state, eps)
                 #a = np.zeros(self.env.action_space[0].n)
                 #a[action] = 1
