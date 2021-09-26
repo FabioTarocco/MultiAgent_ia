@@ -102,6 +102,15 @@ class DDQN:
         return np.argmax(q_values)
 
     def to_encode(self, action):
+        """
+        Return the OneHotEncoding action of a particular agent
+
+        Args:
+            action (int): Number of action obtained by get_action()
+
+        Returns:
+            encoded (list): Encoded action in the form [0,0,0,0,0] where there will be a 1 in the i-th column corresponding to the number of action.
+        """
         encoded = np.zeros((self.env.action_space[0].n), dtype=int)
         encoded[action] = 1
         return encoded
@@ -217,8 +226,6 @@ class DDQN:
             while steps < 250:
                 actions = []
                 for i in range(self.env.n):
-                    print(state)
-                    print(state[i])
                     action = self.get_action(state[i],eps)
                     actions.append(self.to_encode(action))
                 #actions = np.array(actions)
