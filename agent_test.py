@@ -228,7 +228,7 @@ class DDQN:
                 for i in range(self.env.n):
                     action = self.get_action(state[i],eps)
                     actions.append(self.to_encode(action))
-                #actions = np.array(actions)
+
                 actions = np.array(actions)
                 print(actions)
                 obs_state, obs_reward, done, _ = self.env.step(actions)
@@ -259,8 +259,8 @@ class DDQN:
 
                 #ep_adv_reward.append(ep_adv_reward)
                 #ep_good_reward.append(ep_single_good_reward)
-
                 #ep_reward += obs_reward
+                
                 steps += 1
 
                 state = obs_state
