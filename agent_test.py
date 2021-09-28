@@ -3,6 +3,9 @@
 This manages the training phase of the off-policy DDQN.
 """
 
+
+#Simple tag, simple spread, simple push/simple adv
+
 import random
 from collections import deque
 import time
@@ -55,17 +58,19 @@ class DDQN:
         self.model_tg = []
         self.buffer = []
         self.model_opt = []
-        
-        for i in range (0,self.env.n - 1):
-            self.model.append(DeepNetwork.build(env, params['dnn']))
-            self.model_tg.append(DeepNetwork.build(env, params['dnn']))
+
+        state = self.env.reset()
+    
+
+        for i in range (self.env.n):
+            self.model.append(DeepNetwork.build(env, params['dnn'], len(state[i])))
+            self.model_tg.append(DeepNetwork.build(env, params['dnn'], len(state[i])))
             self.buffer.append(Buffer(params['buffer']['size']))
             self.model_tg[i].set_weights(self.model[i].get_weights())
             self.model_opt.append(Adam())
-            #self.model_opt[i] = Adam()
         
         
-    def get_action(self, state, eps):
+    def get_action(self, state, i,eps):
         """Get the action to perform
 
         Args:
@@ -97,8 +102,9 @@ class DDQN:
         """
         if np.random.uniform() <= eps:
             return np.random.randint(0, self.env.action_space[0].n)
-             
-        q_values = self.model(np.array([state])).numpy()[0]    
+
+        #provare con : q_values = self.model[i](np.array([state])).numpy()[0]
+        q_values = self.model[i](np.array([state])).numpy()[0]    
         return np.argmax(q_values)
 
     def to_encode(self, action):
@@ -125,7 +131,7 @@ class DDQN:
         Returns:
             None
         """
-        for i in range (self.env.n -1):
+        for i in range (self.env.n ):
             batch_size = min(self.buffer[i].size, batch_size)
             states, actions, rewards, obs_states, dones = self.buffer[i].sample(batch_size)
 
@@ -172,7 +178,7 @@ class DDQN:
             loss = tf.math.reduce_mean(td_errors)
 
             # Compute the model gradient and update the network
-            grad = tape.gradient(loss, self.model.trainable_variables)
+            grad = tape.gradient(loss, model.trainable_variables)
             model_opt.apply_gradients(zip(grad,model.trainable_variables))
 
  
@@ -223,29 +229,20 @@ class DDQN:
             for s in state:
                 badTH = min(badTH, s.size)
 
-            while steps < 250:
+            while steps < 2000:
                 actions = []
+                index_actions = []
                 for i in range(self.env.n):
-                    action = self.get_action(state[i],eps)
+                    action = self.get_action(state[i],i,eps)
+                    index_actions.append(action)
                     actions.append(self.to_encode(action))
 
                 actions = np.array(actions)
-                print(actions)
                 obs_state, obs_reward, done, _ = self.env.step(actions)
 
-                #action = self.get_action(state, eps)
-                #a = np.zeros(self.env.action_space[0].n)
-                #a[action] = 1
-                #obs_state, obs_reward, done, _ = self.env.step([a])
-
-                #obs_state = obs_state[-1]
-                #obs_reward = obs_reward[-1]
-                #done = done[-1]
-                #print(obs_state,obs_reward)
-
-                for i in range (self.env.n - 1):
+                for i in range (self.env.n):
                     self.buffer[i].store(state[i], 
-                        actions[i], 
+                        index_actions[i], 
                         obs_reward[i], 
                         obs_state[i], 
                         1 - int(done[i])
@@ -256,13 +253,8 @@ class DDQN:
                         ep_good_reward+=obs_reward[i]
                     else:
                         ep_adv_reward+=obs_reward[i]
-
-                #ep_adv_reward.append(ep_adv_reward)
-                #ep_good_reward.append(ep_single_good_reward)
-                #ep_reward += obs_reward
                 
                 steps += 1
-
                 state = obs_state
                 
                 if e > params['update_start']: 
@@ -271,7 +263,7 @@ class DDQN:
                         params['buffer']['batch']
                     )
                     
-                    for i in range (self.env.n - 1):            
+                    for i in range (self.env.n):            
                         if use_polyak:
                             # DDPG Polyak update improve stability over the periodical full copy
                             self.polyak_update(self.model[i].variables, self.model_tg[i].variables, tau)

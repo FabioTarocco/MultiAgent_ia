@@ -22,7 +22,7 @@ class DeepNetwork:
     """
 
     @staticmethod  
-    def build(env, params, name='model'):
+    def build(env, params, l, name='model'):
         """Gets the DNN architecture and build it
 
         Args:
@@ -33,8 +33,8 @@ class DeepNetwork:
         Returns:
             model: the uncompiled DNN Model
         """
-
-        input_size = env.observation_space[0].shape[0]
+        input_size = l
+        #input_size = env.observation_space[0].shape[0]
         action_size = env.action_space[0].n
 
         state_input = Input(shape=(input_size,), name='input_layer')
