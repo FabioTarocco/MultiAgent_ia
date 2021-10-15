@@ -229,7 +229,7 @@ class DDQN:
             for s in state:
                 badTH = min(badTH, s.size)
 
-            while steps < 2000:
+            while steps < 250:
                 actions = []
                 index_actions = []
                 for i in range(self.env.n):
@@ -276,7 +276,7 @@ class DDQN:
 
             mean_good_reward.append(ep_good_reward)
             mean_adv_reward.append(ep_adv_reward)
-            tracker.update([e, ep_good_reward, ep_adv_reward])
+            tracker.update([e, ep_good_reward, ep_adv_reward, np.mean(mean_good_reward), np.mean(mean_adv_reward)])
             
 
             if e % verbose == 0: 

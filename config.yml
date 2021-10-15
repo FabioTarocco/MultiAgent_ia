@@ -1,9 +1,9 @@
 setup:
-  seed: 1
+  seed: 2
   use_gpu: False
 
 train:
-  name: 'simple'
+  name: 'simple_tag'
   n_episodes: 10000
   verbose: 50
 
@@ -12,7 +12,7 @@ agent:
   polyak: True
   tg_update: 5
 
-  gamma: 0.99
+  gamma: 0.99 #Gamma alto =  ricompensa a lungo termine // Gamma basso = breve termine
   tau: 0.005
 
   eps: 1

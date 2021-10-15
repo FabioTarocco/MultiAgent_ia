@@ -66,7 +66,7 @@ def main(params):
             tag,
             seed,
             cfg['agent'], 
-            ['Epoch', 'Ep_Reward', 'Ep_Adv_Reward']
+            ['Epoch', 'Ep_Reward', 'Ep_Adv_Reward','CM_Reward','CM_Adv_Reward']
         )
 
     # Train the agent
