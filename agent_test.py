@@ -230,6 +230,8 @@ class DDQN:
                 badTH = min(badTH, s.size)
 
             while steps < 250:
+                
+                
                 actions = []
                 index_actions = []
                 for i in range(self.env.n):

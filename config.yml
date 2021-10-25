@@ -1,9 +1,9 @@
 setup:
-  seed: 1
+  seed: 2
   use_gpu: False
 
 train:
-  name: 'simple_tag'
+  name: 'simple_spread'
   n_episodes: 10000
   verbose: 50
 
